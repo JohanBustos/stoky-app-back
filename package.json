@@ -1,8 +1,8 @@
 {
   "name": "stoky-app-back",
   "version": "1.0.0",
-  "description": "",
-  "author": "",
+  "description": "Stoky App Backend",
+  "author": "Johan Bustos",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

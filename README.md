@@ -234,3 +234,9 @@ yarn test:cov
 - `GET /quotes` - Get all quotes
 - `GET /quotes/filters` - Get quotes with filters
 - `PATCH /quotes/:id/payment-status` - Update quote payment status
+
+## Author
+
+**Johan Bustos**
+- GitHub: [@JohanBustos](https://github.com/JohanBustos)
+- Email: johan.bustosm@gmail.com
