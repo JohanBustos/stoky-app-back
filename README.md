@@ -8,6 +8,7 @@ A NestJS backend application built with Clean Architecture principles, providing
 - [Project Structure](#project-structure)
 - [Clean Architecture](#clean-architecture)
 - [System Architecture](#system-architecture)
+- [Data Model](#data-model)
 - [Running the Application](#running-the-application)
 - [Testing](#testing)
 
@@ -111,73 +112,170 @@ This project implements Clean Architecture, a software design philosophy introdu
 
 #### Level 1: System Context Diagram
 
-```
-+------------------+     +------------------+
-|                  |     |                  |
-|  Web App         +---->+  Stoky Backend   |
-|                  |     |                  |
-+------------------+     +------------------+
-                                |
-                                v
-                        +------------------+
-                        |                  |
-                        |  Firebase        |
-                        |                  |
-                        +------------------+
+```mermaid
+C4Context
+    title System Context Diagram - Stoky App
+
+    Person(customer, "Customer", "A user of the Stoky application")
+    System(stokyBackend, "Stoky Backend", "Handles business logic and data management")
+    SystemDb(firebase, "Firebase", "Authentication and database services")
+
+    Rel(customer, stokyBackend, "Uses")
+    Rel(stokyBackend, firebase, "Uses")
 ```
 
 #### Level 2: Container Diagram
 
-```
-+--------------------------------------------------+
-|                                                  |
-|  Stoky Backend                                   |
-|                                                  |
-|  +----------------+  +----------------+          |
-|  |                |  |                |          |
-|  |  API Layer     |  |  Auth Layer    |          |
-|  |                |  |                |          |
-|  +----------------+  +----------------+          |
-|          |                    |                  |
-|          v                    v                  |
-|  +----------------+  +----------------+          |
-|  |                |  |                |          |
-|  |  Business      |  |  Firebase      |          |
-|  |  Logic         |  |  Integration   |          |
-|  |                |  |                |          |
-|  +----------------+  +----------------+          |
-|                                                  |
-+--------------------------------------------------+
+```mermaid
+C4Container
+    title Container Diagram - Stoky Backend
+
+    Person(customer, "Customer", "A user of the Stoky application")
+    System_Boundary(stokyBackend, "Stoky Backend") {
+        Container(apiLayer, "API Layer", "NestJS, REST API", "Handles HTTP requests and responses")
+        Container(authLayer, "Auth Layer", "Firebase Auth", "Handles authentication and authorization")
+        Container(businessLogic, "Business Logic", "TypeScript", "Implements business rules and use cases")
+        Container(firebaseIntegration, "Firebase Integration", "Firebase SDK", "Manages data persistence and real-time updates")
+    }
+    SystemDb(firebase, "Firebase", "Authentication and database services")
+
+    Rel(customer, apiLayer, "Uses")
+    Rel(apiLayer, authLayer, "Uses")
+    Rel(apiLayer, businessLogic, "Uses")
+    Rel(authLayer, firebase, "Uses")
+    Rel(businessLogic, firebaseIntegration, "Uses")
+    Rel(firebaseIntegration, firebase, "Uses")
 ```
 
 #### Level 3: Component Diagram (Payments Module)
 
+```mermaid
+C4Component
+    title Component Diagram - Payments Module
+
+    Container_Boundary(paymentsModule, "Payments Module") {
+        Component(controllers, "Controllers", "NestJS Controllers", "Handles HTTP requests for payments")
+        Component(dtos, "DTOs", "Data Transfer Objects", "Defines data structures for API communication")
+        Component(services, "Services", "Application Services", "Orchestrates payment operations")
+        Component(useCases, "Use Cases", "Business Logic", "Implements specific payment operations")
+        Component(repositories, "Repositories", "Data Access", "Manages payment data persistence")
+        Component(entities, "Entities", "Domain Models", "Core payment business objects")
+    }
+
+    Rel(controllers, dtos, "Uses")
+    Rel(controllers, services, "Uses")
+    Rel(services, useCases, "Uses")
+    Rel(useCases, repositories, "Uses")
+    Rel(useCases, entities, "Uses")
+    Rel(repositories, entities, "Uses")
 ```
-+--------------------------------------------------+
-|                                                  |
-|  Payments Module                                 |
-|                                                  |
-|  +----------------+  +----------------+          |
-|  |                |  |                |          |
-|  |  Controllers   |  |  DTOs          |          |
-|  |                |  |                |          |
-|  +----------------+  +----------------+          |
-|          |                    |                  |
-|          v                    v                  |
-|  +----------------+  +----------------+          |
-|  |                |  |                |          |
-|  |  Services      |  |  Use Cases     |          |
-|  |                |  |                |          |
-|  +----------------+  +----------------+          |
-|          |                    |                  |
-|          v                    v                  |
-|  +----------------+  +----------------+          |
-|  |                |  |                |          |
-|  |  Repositories  |  |  Entities      |          |
-|  |                |  |                |          |
-|  +----------------+  +----------------+          |
-|                                                  |
-+--------------------------------------------------+
+
+## Data Model
+
+### Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    CUSTOMER ||--o{ QUOTE : "creates"
+    QUOTE ||--o{ PAYMENT : "has"
+    QUOTE {
+        string id PK
+        string customerId FK
+        string status
+        number totalAmount
+        date createdAt
+        date updatedAt
+        array items
+        string paymentStatus
+    }
+    PAYMENT {
+        string id PK
+        string quoteId FK
+        string status
+        number amount
+        string paymentMethod
+        date createdAt
+        date updatedAt
+        string transactionId
+    }
+    CUSTOMER {
+        string id PK
+        string name
+        string email
+        string phone
+        date createdAt
+        date updatedAt
+    }
+```
+
+### Domain Model
+
+```mermaid
+classDiagram
+    class Quote {
+        +String id
+        +String customerId
+        +String status
+        +Number totalAmount
+        +Date createdAt
+        +Date updatedAt
+        +Array items
+        +String paymentStatus
+        +create()
+        +update()
+        +calculateTotal()
+        +updatePaymentStatus()
+    }
+    
+    class Payment {
+        +String id
+        +String quoteId
+        +String status
+        +Number amount
+        +String paymentMethod
+        +Date createdAt
+        +Date updatedAt
+        +String transactionId
+        +process()
+        +updateStatus()
+        +validate()
+    }
+    
+    class Customer {
+        +String id
+        +String name
+        +String email
+        +String phone
+        +Date createdAt
+        +Date updatedAt
+        +createQuote()
+        +updateProfile()
+    }
+
+    Quote "1" -- "many" Payment : has
+    Customer "1" -- "many" Quote : creates
+```
+
+### Data Flow Diagram
+
+```mermaid
+flowchart TD
+    A[Customer] -->|Creates| B[Quote]
+    B -->|Contains| C[Quote Items]
+    B -->|Generates| D[Payment]
+    D -->|Updates| E[Payment Status]
+    E -->|Notifies| F[Quote Status]
+    
+    subgraph Quote Process
+        B
+        C
+    end
+    
+    subgraph Payment Process
+        D
+        E
+        F
+    end
 ```
 
 ## Running the Application
