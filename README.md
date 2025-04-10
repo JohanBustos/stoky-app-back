@@ -1,98 +1,236 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Stoky App Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS backend application built with Clean Architecture principles, providing APIs for payment and quote management.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Table of Contents
 
-## Description
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Clean Architecture](#clean-architecture)
+- [System Architecture](#system-architecture)
+- [Running the Application](#running-the-application)
+- [Testing](#testing)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Installation
 
-## Project setup
+### Prerequisites
 
-```bash
-$ yarn install
+- Node.js (v18 or higher)
+- Yarn package manager
+- Firebase account (for authentication and database)
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/stoky-app-back.git
+   cd stoky-app-back
+   ```
+
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   PORT=8000
+   FIREBASE_DB_URL=your-firebase-database-url
+   ```
+
+4. Configure Firebase:
+   - Place your Firebase service account key in `src/shared/config/firebase/serviceAccountKey.json`
+
+## Project Structure
+
+The project follows a modular structure based on Clean Architecture principles:
+
+```
+src/
+├── main.ts                  # Application entry point
+├── app.module.ts            # Root application module
+├── payments/                # Payments module
+│   ├── domain/              # Domain layer
+│   │   ├── entities/        # Business entities
+│   │   └── repositories/    # Repository interfaces
+│   ├── application/         # Application layer
+│   │   ├── services/        # Application services
+│   │   └── use-cases/       # Use cases
+│   ├── infrastructure/      # Infrastructure layer
+│   │   └── repositories/    # Repository implementations
+│   └── interface/           # Interface layer
+│       ├── controllers/     # API controllers
+│       ├── dtos/            # Data Transfer Objects
+│       └── mappers/         # Entity-DTO mappers
+├── quotes/                  # Quotes module (similar structure)
+├── shared/                  # Shared resources
+│   ├── config/              # Configuration
+│   └── guards/              # Authentication guards
+└── utils/                   # Utility functions
 ```
 
-## Compile and run the project
+## Clean Architecture
 
-```bash
-# development
-$ yarn run start
+This project implements Clean Architecture, a software design philosophy introduced by Robert C. Martin. The architecture is divided into layers:
 
-# watch mode
-$ yarn run start:dev
+### Benefits of Clean Architecture
 
-# production mode
-$ yarn run start:prod
+1. **Independence of Frameworks**: The core business logic is independent of external frameworks, making it easier to replace or upgrade them.
+
+2. **Testability**: Each layer can be tested independently, with clear boundaries between components.
+
+3. **Independence of UI**: The user interface can be changed without affecting the business logic.
+
+4. **Independence of Database**: The database can be changed without affecting the business logic.
+
+5. **Independence of External Agencies**: The business rules don't depend on external agencies.
+
+### Layers
+
+1. **Domain Layer**: Contains enterprise business rules and entities.
+   - Entities: Core business objects (Payment, Quote)
+   - Repository Interfaces: Define how data is accessed
+
+2. **Application Layer**: Contains application business rules.
+   - Use Cases: Implement specific business operations
+   - Services: Orchestrate use cases and handle application logic
+
+3. **Infrastructure Layer**: Contains frameworks, tools, and external interfaces.
+   - Repository Implementations: Concrete implementations of repositories
+   - External Services: Firebase, etc.
+
+4. **Interface Layer**: Contains controllers, presenters, and gateways.
+   - Controllers: Handle HTTP requests
+   - DTOs: Data transfer objects for API communication
+   - Mappers: Transform between entities and DTOs
+
+## System Architecture
+
+### C4 Model Diagrams
+
+#### Level 1: System Context Diagram
+
+```
++------------------+     +------------------+
+|                  |     |                  |
+|  Web App         +---->+  Stoky Backend   |
+|                  |     |                  |
++------------------+     +------------------+
+                                |
+                                v
+                        +------------------+
+                        |                  |
+                        |  Firebase        |
+                        |                  |
+                        +------------------+
 ```
 
-## Run tests
+#### Level 2: Container Diagram
 
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+```
++--------------------------------------------------+
+|                                                  |
+|  Stoky Backend                                   |
+|                                                  |
+|  +----------------+  +----------------+          |
+|  |                |  |                |          |
+|  |  API Layer     |  |  Auth Layer    |          |
+|  |                |  |                |          |
+|  +----------------+  +----------------+          |
+|          |                    |                  |
+|          v                    v                  |
+|  +----------------+  +----------------+          |
+|  |                |  |                |          |
+|  |  Business      |  |  Firebase      |          |
+|  |  Logic         |  |  Integration   |          |
+|  |                |  |                |          |
+|  +----------------+  +----------------+          |
+|                                                  |
++--------------------------------------------------+
 ```
 
-## Deployment
+#### Level 3: Component Diagram (Payments Module)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+```
++--------------------------------------------------+
+|                                                  |
+|  Payments Module                                 |
+|                                                  |
+|  +----------------+  +----------------+          |
+|  |                |  |                |          |
+|  |  Controllers   |  |  DTOs          |          |
+|  |                |  |                |          |
+|  +----------------+  +----------------+          |
+|          |                    |                  |
+|          v                    v                  |
+|  +----------------+  +----------------+          |
+|  |                |  |                |          |
+|  |  Services      |  |  Use Cases     |          |
+|  |                |  |                |          |
+|  +----------------+  +----------------+          |
+|          |                    |                  |
+|          v                    v                  |
+|  +----------------+  +----------------+          |
+|  |                |  |                |          |
+|  |  Repositories  |  |  Entities      |          |
+|  |                |  |                |          |
+|  +----------------+  +----------------+          |
+|                                                  |
++--------------------------------------------------+
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Running the Application
 
-## Resources
+### Development Mode
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+yarn start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+The application will be available at `http://localhost:8000`.
 
-## Support
+### Production Mode
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+yarn build
+yarn start:prod
+```
 
-## Stay in touch
+## Testing
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Unit Tests
 
-## License
+```bash
+yarn test
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### E2E Tests
+
+```bash
+yarn test:e2e
+```
+
+### Test Coverage
+
+```bash
+yarn test:cov
+```
+
+## API Endpoints
+
+### Payments
+
+- `POST /payments` - Create a new payment
+- `GET /payments/quote/:quoteId` - Get payments by quote ID
+- `GET /payments` - Get all payments
+- `GET /payments/filters` - Get payments with filters
+- `PATCH /payments/:id/status` - Update payment status
+
+### Quotes
+
+- `POST /quotes` - Create a new quote
+- `GET /quotes/:id` - Get quote by ID
+- `GET /quotes` - Get all quotes
+- `GET /quotes/filters` - Get quotes with filters
+- `PATCH /quotes/:id/payment-status` - Update quote payment status

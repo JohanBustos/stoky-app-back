@@ -5,6 +5,9 @@ export class QuoteItemDto {
   @IsString()
   productId: string;
 
+  @IsString()
+  name: string;
+
   @IsNumber()
   quantity: number;
 

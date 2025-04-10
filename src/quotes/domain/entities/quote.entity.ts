@@ -38,6 +38,7 @@ export class Quote {
 export class QuoteItem {
   constructor(
     public readonly productId: string,
+    public readonly name: string,
     public readonly quantity: number,
     public readonly price: number,
   ) {}

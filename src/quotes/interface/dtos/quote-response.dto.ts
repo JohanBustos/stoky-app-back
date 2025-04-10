@@ -21,6 +21,7 @@ export class QuoteDetailsResponseDto extends QuoteResponseDto {
     base.status = quote.paymentStatus;
     base.items = quote.items.map((item) => ({
       productId: item.productId,
+      name: item.name,
       quantity: item.quantity,
       price: item.price,
     }));

@@ -14,17 +14,17 @@ export class CreatePaymentUseCase {
   ) {}
 
   async execute(payment: Payment): Promise<Payment> {
+    const quote = await this.quoteRepository.findById(payment.quoteId);
+    if (!quote || !quote.id) {
+      throw new NotFoundException('Quote not found');
+    }
+
     const created = await this.paymentRepository.create(payment);
 
     const allPayments = await this.paymentRepository.findByQuoteId(
       payment.quoteId,
     );
     const totalPaid = allPayments.reduce((sum, p) => sum + p.amount, 0);
-
-    const quote = await this.quoteRepository.findById(payment.quoteId);
-    if (!quote || !quote.id) {
-      throw new NotFoundException('Quote not found');
-    }
 
     if (
       totalPaid >= quote.totalAmount &&

@@ -7,9 +7,7 @@ import { PaymentsUseCases } from './application/use-cases';
 import { QuotesModule } from '../quotes/quotes.module';
 
 @Module({
-  imports: [
-    QuotesModule,
-  ],
+  imports: [QuotesModule],
   controllers: [PaymentsController],
   providers: [
     PaymentsService,
