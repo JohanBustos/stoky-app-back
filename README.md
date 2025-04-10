@@ -24,7 +24,7 @@ A NestJS backend application built with Clean Architecture principles, providing
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/stoky-app-back.git
+   git clone https://github.com/JohanBustos/stoky-app-back.git
    cd stoky-app-back
    ```
 
@@ -212,48 +212,69 @@ erDiagram
 
 ```mermaid
 classDiagram
+    class QuotePaymentStatus {
+        <<enumeration>>
+        PENDING
+        PAID
+        CANCELLED
+        FAILED
+    }
+
     class Quote {
         +String id
         +String customerId
-        +String status
-        +Number totalAmount
         +Date createdAt
-        +Date updatedAt
-        +Array items
-        +String paymentStatus
-        +create()
-        +update()
-        +calculateTotal()
-        +updatePaymentStatus()
+        +Number totalAmount
+        +QuoteItem[] items
+        +QuotePaymentStatus paymentStatus
+        +markAsPaid()
+        +cancel()
+        +fail()
+        +isPending()
     }
     
+    class QuoteItem {
+        +String productId
+        +String name
+        +Number quantity
+        +Number price
+    }
+    
+    class PaymentStatus {
+        <<enumeration>>
+        PENDING
+        COMPLETED
+        FAILED
+        CANCELLED
+    }
+
+    class PaymentMethod {
+        <<enumeration>>
+        CARD
+        CASH
+        TRANSFER
+        OTHER
+    }
+
     class Payment {
         +String id
         +String quoteId
-        +String status
         +Number amount
-        +String paymentMethod
+        +PaymentMethod method
+        +PaymentStatus status
         +Date createdAt
-        +Date updatedAt
-        +String transactionId
-        +process()
-        +updateStatus()
-        +validate()
-    }
-    
-    class Customer {
-        +String id
-        +String name
-        +String email
-        +String phone
-        +Date createdAt
-        +Date updatedAt
-        +createQuote()
-        +updateProfile()
+        +String reference
+        +markAsCompleted()
+        +markAsFailed()
+        +cancel()
+        +isPending()
     }
 
+    Quote "1" -- "many" QuoteItem : contains
+    Quote "1" -- "1" QuotePaymentStatus : has
+    Payment "1" -- "1" PaymentStatus : has
+    Payment "1" -- "1" PaymentMethod : uses
     Quote "1" -- "many" Payment : has
-    Customer "1" -- "many" Quote : creates
 ```
 
 ### Data Flow Diagram
